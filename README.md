@@ -37,7 +37,7 @@ Below is the core ER diagram:
 ### 1️⃣ Requirements
 - **Python 3.10+**
 - **PostgreSQL 15+**
-- `psycopg2`, `pandas` (install with `pip install -r requirements.txt`)
+- `psycopg2`, `tabulate` (install with `pip install -r requirements.txt`)
 
 ### 2️⃣ Set up PostgreSQL
 1. Create the database:
