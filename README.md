@@ -22,12 +22,13 @@ Below is the core ER diagram:
 ![ER Diagram](images/er_diagram.png)
 
 **Tables**
-- **movies**: Basic movie info (title, year, duration, etc.)
-- **genres**: List of genres
-- **directors**: Movie directors
-- **movie_genres**: Many-to-many link between movies and genres
-- **movie_directors**: Many-to-many link between movies and directors
-- **ratings**: User ratings, scores, and comments
+- **genres**: Stores all movie genres  
+- **directors**: Contains information about movie directors  
+- **movies**: Holds core movie details and links each movie to a genre and a director  
+- **actors**: Lists all actors  
+- **movie_actor**: Many-to-many link between movies and actors  
+- **users**: Stores registered users who can rate movies  
+- **ratings**: User ratings for movies
 
 ---
 
