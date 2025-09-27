@@ -1,52 +1,101 @@
--- ===== 1. Top 10 highest-rated movies =====
+-- 1. Top 10 movies by average rating (at least 10 ratings)
 SELECT m.title,
-       ROUND(AVG(r.score), 2) AS avg_rating,
-       COUNT(r.id) AS rating_count
+       ROUND(AVG(r.rating),2) AS avg_rating,
+       COUNT(r.rating_id)     AS total_votes
 FROM movies m
-JOIN ratings r ON r.movie_id = m.id
+JOIN ratings r ON m.movie_id = r.movie_id
 GROUP BY m.title
-ORDER BY avg_rating DESC, rating_count DESC
+HAVING COUNT(r.rating_id) >= 10
+ORDER BY avg_rating DESC
 LIMIT 10;
 
--- ===== 2. Average rating by genre =====
+-- 2. Number of movies per genre
 SELECT g.name AS genre,
-       ROUND(AVG(r.score), 2) AS avg_score
+       COUNT(m.movie_id) AS total_movies
 FROM genres g
-JOIN movie_genres mg ON mg.genre_id = g.id
-JOIN movies m ON m.id = mg.movie_id
-JOIN ratings r ON r.movie_id = m.id
+LEFT JOIN movies m ON g.genre_id = m.genre_id
 GROUP BY g.name
-ORDER BY avg_score DESC;
+ORDER BY total_movies DESC;
 
--- ===== 3. Average movie duration by genre =====
-SELECT g.name AS genre,
-       ROUND(AVG(m.duration_min), 1) AS avg_duration
-FROM genres g
-JOIN movie_genres mg ON mg.genre_id = g.id
-JOIN movies m ON m.id = mg.movie_id
-GROUP BY g.name
-ORDER BY avg_duration DESC;
-
--- ===== 4. All movies for a specific director (example: 'Christopher Nolan') =====
+-- 3. Top 5 directors by average movie rating
 SELECT d.name AS director,
-       m.title,
-       m.release_year
+       ROUND(AVG(r.rating),2) AS avg_rating,
+       COUNT(DISTINCT m.movie_id) AS movies_count
 FROM directors d
-JOIN movie_directors md ON md.director_id = d.id
-JOIN movies m ON m.id = md.movie_id
-WHERE d.name ILIKE 'Christopher Nolan'
+JOIN movies m ON d.director_id = m.director_id
+JOIN ratings r ON m.movie_id = r.movie_id
+GROUP BY d.name
+HAVING COUNT(r.rating_id) >= 10
+ORDER BY avg_rating DESC
+LIMIT 5;
+
+-- 4. Average rating by release year
+SELECT m.release_year,
+       ROUND(AVG(r.rating),2) AS avg_rating,
+       COUNT(r.rating_id) AS votes
+FROM movies m
+JOIN ratings r ON m.movie_id = r.movie_id
+GROUP BY m.release_year
 ORDER BY m.release_year;
 
--- ===== 5. Last 10 movies added to the database =====
-SELECT title, release_year, created_at
-FROM movies
-ORDER BY created_at DESC
+-- 5. Actors with the most movie appearances
+SELECT a.name AS actor,
+       COUNT(ma.movie_id) AS movie_count
+FROM actors a
+JOIN movie_actor ma ON a.actor_id = ma.actor_id
+GROUP BY a.name
+ORDER BY movie_count DESC
 LIMIT 10;
 
--- ===== 6. Users and how many ratings they submitted =====
-SELECT r.user_name,
-       COUNT(r.id) AS ratings_count,
-       ROUND(AVG(r.score),2) AS avg_user_score
-FROM ratings r
-GROUP BY r.user_name
-ORDER BY ratings_count DESC;
+-- 6. Longest movies per genre (max duration)
+SELECT g.name AS genre,
+       m.title,
+       m.duration_min
+FROM movies m
+JOIN genres g ON m.genre_id = g.genre_id
+WHERE (g.genre_id, m.duration_min) IN (
+    SELECT genre_id, MAX(duration_min)
+    FROM movies
+    GROUP BY genre_id
+);
+
+-- 7. Average movie duration per director
+SELECT d.name AS director,
+       ROUND(AVG(m.duration_min),1) AS avg_duration
+FROM directors d
+JOIN movies m ON d.director_id = m.director_id
+GROUP BY d.name
+ORDER BY avg_duration DESC
+LIMIT 10;
+
+-- 8. Users who gave the highest average ratings (min 20 ratings)
+SELECT u.username,
+       ROUND(AVG(r.rating),2) AS avg_user_rating,
+       COUNT(r.rating_id) AS total_ratings
+FROM users u
+JOIN ratings r ON u.user_id = r.user_id
+GROUP BY u.username
+HAVING COUNT(r.rating_id) >= 20
+ORDER BY avg_user_rating DESC
+LIMIT 10;
+
+-- 9. Genres with highest average rating
+SELECT g.name AS genre,
+       ROUND(AVG(r.rating),2) AS avg_rating,
+       COUNT(r.rating_id) AS total_votes
+FROM genres g
+JOIN movies m ON g.genre_id = m.genre_id
+JOIN ratings r ON m.movie_id = r.movie_id
+GROUP BY g.name
+ORDER BY avg_rating DESC;
+
+-- 10. Users who rated movies from at least 5 different genres
+SELECT u.username,
+       COUNT(DISTINCT g.genre_id) AS genres_rated
+FROM users u
+JOIN ratings r ON u.user_id = r.user_id
+JOIN movies m  ON r.movie_id = m.movie_id
+JOIN genres g  ON m.genre_id = g.genre_id
+GROUP BY u.username
+HAVING COUNT(DISTINCT g.genre_id) >= 5
+ORDER BY genres_rated DESC;

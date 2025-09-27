@@ -1,19 +1,30 @@
+import os
+import re
 import pandas as pd
 import psycopg2
 from psycopg2.extras import execute_values
-import os
+from tabulate import tabulate
+
+DB_NAME = "movies_db"
+DB_USER = "postgres"
+DB_PASS = "postgres"
+DB_HOST = "localhost"
+DB_PORT = 5432
+DATA_PATH = "data"
+QUERIES_FILE = "queries.sql"
 
 conn = psycopg2.connect(
-    dbname="movies_db",
-    user="postgres",
-    password="postgres",
-    host="localhost",
-    port=5432
+    dbname=DB_NAME,
+    user=DB_USER,
+    password=DB_PASS,
+    host=DB_HOST,
+    port=DB_PORT
 )
 cur = conn.cursor()
 
 cur.execute("""
-DROP TABLE IF EXISTS ratings, movie_actor, users, movies, directors, actors, genres CASCADE;
+DROP TABLE IF EXISTS ratings, movie_actor, users, movies,
+    directors, actors, genres CASCADE;
 
 CREATE TABLE genres (
     genre_id INT PRIMARY KEY,
@@ -51,49 +62,39 @@ CREATE TABLE ratings (
 );
 """)
 conn.commit()
+print(" Tables created")
 
-data_path = "data"
-tables = ["genres","directors","movies","actors","movie_actor","users","ratings"]
+tables = ["genres", "directors", "movies", "actors",
+          "movie_actor", "users", "ratings"]
 
 for t in tables:
-    df = pd.read_csv(os.path.join(data_path, f"{t}.csv"))
-    cols = ",".join(df.columns)
+    csv_path = os.path.join(DATA_PATH, f"{t}.csv")
+    df = pd.read_csv(csv_path)
     df = df.astype(object)
+    cols = ",".join(df.columns)
     values = [tuple(row) for row in df.to_numpy()]
-    execute_values(
-        cur,
-        f"INSERT INTO {t} ({cols}) VALUES %s",
-        values,
-        page_size=5000
-    )
+    execute_values(cur, f"INSERT INTO {t} ({cols}) VALUES %s", values)
     conn.commit()
+    print(f"Loaded {t}")
 
+def load_queries(path=QUERIES_FILE):
+    queries = []
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    pattern = r"--\s*(.*?)\n(.*?);"
+    for desc, sql in re.findall(pattern, content, flags=re.S | re.M):
+        queries.append((desc.strip(), sql.strip()))
+    return queries
 
-queries = [
-    ("Top 10 highest-rated movies",
-     """
-     SELECT m.title, ROUND(AVG(r.rating),2) as avg_rating
-     FROM movies m JOIN ratings r ON m.movie_id=r.movie_id
-     GROUP BY m.title
-     ORDER BY avg_rating DESC
-     LIMIT 10;
-     """),
-    ("Average rating by genre",
-     """
-     SELECT g.name, ROUND(AVG(r.rating),2)
-     FROM genres g
-     JOIN movies m ON g.genre_id=m.genre_id
-     JOIN ratings r ON m.movie_id=r.movie_id
-     GROUP BY g.name
-     ORDER BY 2 DESC;
-     """)
-]
-
-for desc, q in queries:
-    print("\n", desc)
-    cur.execute(q)
-    for row in cur.fetchall():
-        print(row)
+for i, (desc, sql) in enumerate(load_queries(), 1):
+    print(f"\n=== Query {i}: {desc} ===")
+    cur.execute(sql)
+    rows = cur.fetchall()
+    if rows:
+        print(tabulate(rows, headers=[c[0] for c in cur.description], tablefmt="psql"))
+    else:
+        print("(no rows)")
 
 cur.close()
 conn.close()
+print("\n Done!")
