@@ -1,4 +1,3 @@
-
 # 🎬 CineAnalytics
 
 **Company Name:** CineAnalytics  
@@ -84,19 +83,6 @@ The script will:
 - **data/\*.csv** – Raw datasets for each table
 - **images/er_diagram.png** – Entity-relationship diagram
 
-
 ---
 
-
-
-## 📈 Expected Output
-
-After running `python main.py`, you should see:
-- Table creation confirmations
-- Data import statistics for each table
-- 10 formatted query results with descriptions
-- Execution time for each query
-
----
-
-Enjoy exploring the movie data! 🍿
+# Enjoy exploring the movie data! 🍿
