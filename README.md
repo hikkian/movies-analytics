@@ -203,10 +203,10 @@ This implementation satisfies all 12 assignment requirements for each dashboard:
    # Check for port conflicts or missing dependencies
    ```
 
-2. **PostgreSQL Exporter can't connect**:
-   - Ensure PostgreSQL is running on localhost:5432
-   - Verify database name is `movies_db`
-   - Check credentials in docker-compose.yml
+2. **SQLite Exporter can't access database**:
+   - Ensure movies.db file exists in the project root
+   - Check file permissions and path in docker-compose.yml
+   - SQLite exporter will create sample database if not found
 
 3. **Custom Exporter shows no data**:
    - Verify OpenWeatherMap API key in .env file
