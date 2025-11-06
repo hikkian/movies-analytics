@@ -1,0 +1,11 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+RUN pip install prometheus_client sqlite3
+
+COPY sqlite_exporter.py .
+
+EXPOSE 9187
+
+CMD ["python", "sqlite_exporter.py"]
