@@ -54,23 +54,22 @@ This monitoring system includes:
 
 ## Dashboards
 
-### 1. PostgreSQL Database Performance (30 Points)
+### 1. SQLite Database Performance (30 Points)
 
 **Metrics Collected**:
-- Active connections and connection usage rate
-- Database size (GB) and growth trends
-- Query processing speed (QPS)
-- Read/write operations rates
-- Cache hit ratio
-- Lock waiting queries
-- Average query duration
-- Total tables and row counts
-- Database uptime
+- Database file size and growth trends
+- Table count and total rows
+- SQLite page count and page size
+- Query performance timing
+- Cache size and journal mode
+- Table-specific row counts and sizes
+- Exporter error tracking
 
 **Alerts**:
-- High connection usage (>80%)
-- Low cache hit ratio (<90%)
-- Rapid database size growth (>1GB/hour)
+- Large database size (>1GB)
+- Slow query performance (>1s)
+- Exporter errors (>5 per 5min)
+- Journal mode configuration issues
 
 ### 2. System Performance Monitoring (25 Points)
 
