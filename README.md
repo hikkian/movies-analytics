@@ -8,7 +8,7 @@ This monitoring system includes:
 
 - **Prometheus Server** (Port 9090) - Metrics collection and storage
 - **Grafana** (Port 3000) - Visualization and dashboarding
-- **PostgreSQL Exporter** (Port 9187) - Database performance metrics
+- **SQLite Exporter** (Port 9187) - SQLite database performance metrics
 - **Node Exporter** (Port 9100) - System resource monitoring
 - **Custom Exporter** (Port 9099) - External API data collection
 
