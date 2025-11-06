@@ -1,0 +1,105 @@
+groups:
+- name: database_alerts
+  rules:
+  - alert: HighConnectionUsage
+    expr: pg_stat_activity_count{state="active"} > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High number of active database connections"
+      description: "Database has {{ $value }} active connections for more than 5 minutes"
+
+  - alert: LowCacheHitRatio
+    expr: (sum(pg_stat_database_blks_hit) / (sum(pg_stat_database_blks_hit) + sum(pg_stat_database_blks_read))) * 100 < 90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low cache hit ratio"
+      description: "Database cache hit ratio is {{ $value }}% for more than 5 minutes"
+
+  - alert: DatabaseSizeGrowth
+    expr: increase(pg_database_size_bytes{datname="movies_db"}[1h]) > 1073741824
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Database growing rapidly"
+      description: "Database size grew by more than 1GB in the last hour"
+
+- name: system_alerts
+  rules:
+  - alert: HighCPUUsage
+    expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage"
+      description: "CPU usage is {{ $value }}% for more than 5 minutes"
+
+  - alert: HighMemoryUsage
+    expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High memory usage"
+      description: "Memory usage is {{ $value }}% for more than 3 minutes"
+
+  - alert: LowDiskSpace
+    expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|rootfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|rootfs"}) * 100 < 10
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Low disk space"
+      description: "Disk space is {{ $value }}% available"
+
+  - alert: HighLoadAverage
+    expr: node_load15 > 4
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High load average"
+      description: "15-minute load average is {{ $value }}"
+
+- name: custom_api_alerts
+  rules:
+  - alert: APIDown
+    expr: (sum(rate(api_requests_total{status="success"}[5m])) / sum(rate(api_requests_total[5m]))) * 100 < 95
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "API success rate low"
+      description: "API success rate is {{ $value }}% for more than 2 minutes"
+
+  - alert: HighAPIResponseTime
+    expr: avg(api_response_time_seconds) by (api_name) > 5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High API response time"
+      description: "API {{ $labels.api_name }} response time is {{ $value }} seconds"
+
+  - alert: TemperatureAnomaly
+    expr: abs(weather_temperature_celsius - avg_over_time(weather_temperature_celsius[1h])) > 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Temperature anomaly detected"
+      description: "Temperature in {{ $labels.city }} deviates by {{ $value }}°C from hourly average"
+
+  - alert: ExchangeRateVolatility
+    expr: abs(rate(exchange_rate[5m]) * 100) > 5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High exchange rate volatility"
+      description: "Exchange rate {{ $labels.from_currency }} to {{ $labels.to_currency }} changed by {{ $value }}% in 5 minutes"
