@@ -17,7 +17,7 @@ This monitoring system includes:
 ### Prerequisites
 
 - Docker and Docker Compose installed
-- PostgreSQL database running on localhost:5432 with database `movies_db`
+- SQLite database file (movies.db) - will be created automatically if not present
 - OpenWeatherMap API key (optional, for weather data)
 
 ### Installation
