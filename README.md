@@ -113,7 +113,7 @@ This monitoring system includes:
 ### Global Variables (Dashboard Filters)
 
 Each dashboard includes configurable global variables:
-- **Database Dashboard**: Database name selector, time range selector
+- **Database Dashboard**: Scrape interval selector
 - **System Dashboard**: Instance selector, CPU core selector, network interface selector
 - **Custom Dashboard**: City selector, currency pair selector, GitHub repository selector
 
