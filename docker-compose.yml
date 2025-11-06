@@ -37,13 +37,19 @@ services:
     depends_on:
       - prometheus
 
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: postgres-exporter
+  sqlite-exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqlite_exporter
+    container_name: sqlite-exporter
     ports:
       - "9187:9187"
+    volumes:
+      - ./sqlite_exporter.py:/app/sqlite_exporter.py
+      - ./movies.db:/app/movies.db:ro
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@host.docker.internal:5432/movies_db?sslmode=disable"
+      - SQLITE_DB_PATH=/app/movies.db
+      - UPDATE_INTERVAL=15
     networks:
       - monitoring
     depends_on:
