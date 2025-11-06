@@ -48,7 +48,7 @@ This monitoring system includes:
 
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin)
-- **PostgreSQL Exporter**: http://localhost:9187/metrics
+- **SQLite Exporter**: http://localhost:9187/metrics
 - **Node Exporter**: http://localhost:9100/metrics
 - **Custom Exporter**: http://localhost:9099/metrics
 
