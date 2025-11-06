@@ -241,8 +241,8 @@ For technical issues or questions:
 **Monitoring System Architecture**:
 ```
 ┌─────────────────┐    ┌─────────────────┐
-│   PostgreSQL    │    │   Node Exporter │
-│     Exporter    │    │                 │
+│    SQLite       │    │   Node Exporter │
+│    Exporter     │    │                 │
 │   (Port 9187)   │    │   (Port 9100)   │
 └─────────┬───────┘    └─────────┬───────┘
           │                      │
